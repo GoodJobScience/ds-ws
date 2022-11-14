@@ -1,0 +1,296 @@
+---
+title: "GJG Workshop - Retry Count Estimation"
+author: "Berke Kizir, Orcun Gumus"
+date: "November 9, 2022"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+
+
+## 1. Introduction
+
+
+
+Zen Match is our causal game introduced at 2021. Each day nearly 2 million user plays the game generate TBs of data. Today we prepared a small dataset from the data and we prepared a challenge to solve.
+
+As we discussed in our blog  difficulty effects the gaming experience. In short, skilled players prefer the game harder while new comers in the genre would rather have easier experience, see <https://science.goodjobgmaes.com> for more.
+
+
+
+![Figure 1: The skills of the segments - we assume constant across the levels, which is apparently not in the case in real historical data -, and the skill difficulty difference of the different segments. That shows newbies enters the frustration much faster than average players, while skilled players are always in boredom area.](https://gjg-data-science-public.s3.amazonaws.com/ds-ws/skills-difficulty.gif)
+
+The aim of this workshop to understand the players abilities, skills, using the real historical data. We will try to estimate how many retry the players will be in need to pass the levels before they reach that specific level. 
+
+At the end of the workshop we prepare a betting game. The betting sheet contains pid(players id), lid(level), ou(over/under), (retry)retry quoted value, odd. The question is would you prefer to play the bet or not. At the end we will compare the profit and loss of our findings compared to betting randomly.
+
+## 2. Libraries that we need
+
+```{r}
+library(dsws)
+```
+
+
+```{r, results='hide'}
+#install.packages("vroom")
+#install.packages("foreach")
+#install.packages("tidyverse")
+
+library("vroom")
+library("tidyverse")
+library("foreach")
+```
+
+
+The tidyverse is an opinionated collection of R packages designed for data science, We will use dplyr and ggplot packages. For foreach functionality we need foreach package, 
+
+
+
+```{r, results='hide'}
+#install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+#install_cmdstan(dir = "~/.cmdstan/cmdstan-2.30.1", cores = getOption("mc.cores", 6), overwrite = TRUE, version = "2.30.1", quiet = TRUE)
+
+library(cmdstanr)
+```
+
+
+We need cmdstanr and cmdstan in order to do bayesian inference,
+
+
+## 3. Data setup
+
+In the dataset we have level id, which also sorted and shows progress. Retry count and superundo and shuffle usage in the level. Superundo and shuffle help the players and increase the probabilirty of passing the level.
+
+
+```{r, echo=FALSE, results='hide'}
+
+# dsws::test_data -> test data to be predicted
+# dsws::odds_table -> odds shared by GJG
+# dsws::train_data -> train data 
+
+
+```
+
+
+### 3.1 Betting randomly
+
+Lets see what playing randomly resulted
+
+```{r}
+set.seed(4)
+random_play_vector <- sample(c(0,1), replace=TRUE, size=nrow(odds_table))
+dsws::score_the_play_vector(random_play_vector, scores = dsws::scores, odds_table = dsws::odds_table)
+
+```
+
+### 3.2 Short EDA on train test data
+
+There is 150 users in the dataset and 100 levels ranging from 100 to 200. 50 users and 50 levels used in testing. For users 100 to 150  we do not have the retry information from 150 to 200.
+
+```{r}
+
+ggplot(train_data %>% mutate(retrial_count= pmin(retrial_count, 10)), aes(x=level_id, y= user_id, fill=retrial_count)) + 
+  geom_tile()
+
+```
+
+Here we see that blue dots are getting more dense while levels are increasing, and some players are passign the levels without retrying.
+
+Lets check our assumptions with aggregated data, is the game getting harder with new levels:
+
+```{r}
+
+retry_counts_per_level <- train_data %>% group_by(level_id) %>% summarise(retrial_count=sum(retrial_count))
+ggplot(data=retry_counts_per_level, aes(x=level_id, y= retrial_count)) + 
+  geom_line() +
+  geom_smooth(span = 0.2)+
+  geom_smooth(method = lm, se = FALSE)
+
+
+```
+
+
+## 4. Modelling the data
+
+### 4.1 Modelling only with level and user
+
+
+Our assumption is to retry count in level i by user j, \( t_{ij} \) is distributed with a geometric distribution
+\[  t_{ij} \sim Geometric (p_{ij}) \]
+where p is the probability of the successful passing in one retry of level j by user i. If we manage to estimate \( p_{ij} \) we can estimate how many retries will be required by the user i for level j to pass.
+
+
+To start with the simplest case let's assume \( p_{ij} \) dependent only on the level and the user. In other words, each player has different equal distribution on the level j.
+
+\[  p_{ij} = inv\_logit(intercept + u_i + l_j) \] 
+
+\[  u_i \sim normal (0, alpha_u) \]
+\[  l_j \sim normal (0, alpha_l) \]
+\[  alpha_u \sim exponential (1) \]
+\[  alpha_l \sim exponential (1) \]
+
+ \( alpha_u \) and \( alpha_l \) are hyper priors for multi level model. We only observe  \( t_{ij} \)while other parameters have latent effects. Check <https://nicholasrjenkins.science/tutorials/bayesian-inference-with-stan/mm_stan/> for more on stan and multi level modelling.
+
+Lets first define the constant across trainings and simulations. You can change chains and iter sampling acording to you computer performance.
+```{r}
+ITER_SAMPLING = 150
+CHAINS = 4
+MIN_TEST_USER_ID = min(dsws::test_data$user_id)
+MIN_TEST_LEVEL_ID = min(dsws::test_data$level_id)
+SAMPLE_COUNT = ITER_SAMPLING * CHAINS
+FIRST_LEVEL = min(dsws::train_data$level_id)
+
+```
+
+
+```{r, results='hide'}
+
+model_1 <- cmdstan_model('./geometric_model_00.stan')
+
+input_list <- list(
+  N = nrow(dsws::train_data),
+  user_id = dsws::train_data$user_id,
+  N_of_user_id = max(dsws::train_data$user_id),
+  
+  level_id = dsws::train_data$level_id - FIRST_LEVEL + 1,
+  N_of_level_id = max(dsws::train_data$level_id) - FIRST_LEVEL + 1,
+  
+  retrial_count = dsws::train_data$retrial_count,
+  
+  N_of_test_user = length(unique(dsws::test_data$user_id)),
+  N_of_test_level = length(unique(dsws::test_data$level_id))
+)
+
+fit <- model_1$sample(
+  data = input_list,
+  iter_warmup = ITER_SAMPLING,
+  iter_sampling = ITER_SAMPLING,
+  chains = CHAINS,
+  parallel_chains = CHAINS,
+  show_messages=FALSE
+)
+
+test_users_simulated_try_model_1 <- get_simulated_retry(
+  fit$output_files(), 
+  MIN_TEST_USER_ID, 
+  MIN_TEST_LEVEL_ID
+)
+
+
+```
+
+
+Lets check the first odd in the table, the odd is 2.46. Lets check is it logical to play this odd or if not.
+
+
+
+```{r, echo=FALSE}
+
+model_1_play_vector <- test_users_simulated_try_model_1 %>%
+  merge(dsws::odds_table) %>% 
+  group_by(user_id, level_id) %>%
+  summarise(p=sum(value < line)/n(), odd=median(odd)) %>%
+  mutate(suggested_odd=(1 - p) / p + 1) %>% 
+  mutate(play=odd>suggested_odd) %>% 
+  pull(play)
+
+dsws::score_the_play_vector(model_1_play_vector, scores = dsws::scores, odds_table = dsws::odds_table)
+
+```
+
+### 4.2 Modelling with superundo and shuffle
+
+
+
+New assumption is to retry count in level i by user j, \( t_{ij} \) is distributed with a geometric distribution
+\[  t_{ij} \sim Geometric (p_{ij}) \]
+where p is the probability of the successful passing in one retry of level j by user i with shuffle usage \(  shuffle_{ij} \) and superundo usage \(  superundo_{ij}\). If we manage to estimate \( p_{ij} \) we can estimate how many retries will be required by the user i for level j to pass.
+
+
+Let's assume \( p_{ij} \) dependent on the level and the user and the perks used during the level. In other words, not only the levels but the perks like superundo and shuffle are effective on \( p_{ij} \).
+
+\[  p_{ij} = inv\_logit(intercept + u_i + l_j + b_{superundo} * superundo_{ij}+ b_{shuffle} *shuffle_{ij}) \] 
+
+\[  u_i \sim normal (0, alpha_u) \]
+\[  l_j \sim normal (0, alpha_l) \]
+\[  alpha_u \sim exponential (1) \]
+\[  alpha_l \sim exponential (1) \]
+\[  b_{superundo} \sim normal (0, 1) \]
+\[  b_{shuffle} \sim normal (0, 1) \]
+
+ \( alpha_u \) and \( alpha_l \) are hyper priors for multi level model. We only observe  \( t_{ij} \)while other parameters have latent effects. Check <https://nicholasrjenkins.science/tutorials/bayesian-inference-with-stan/mm_stan/> for more on stan and multi level modelling.
+
+
+```{r,   results='hide'}
+model_2 <- cmdstan_model('geometric_model_01.stan')
+
+
+input_list <- list(
+  N = nrow(train_data),
+  user_id = train_data$user_id,
+  N_of_user_id = max(train_data$user_id),
+  
+  level_id = train_data$level  - 100,
+  N_of_level_id = max(train_data$level) - 100,
+  
+  retrial_count = train_data$retrial_count,
+  
+  N_of_test_user = length(unique(test_data$user_id)),
+  N_of_test_level = length(unique(test_data$level_id)),
+  superundo = dsws::superundo,
+  shuffle = dsws::shuffle
+)
+
+fit <- model_2$sample(
+  data = input_list,
+  iter_warmup = ITER_SAMPLING,
+  iter_sampling = ITER_SAMPLING,
+  chains = CHAINS,
+  parallel_chains = CHAINS,
+  show_messages=FALSE
+)
+
+test_users_simulated_try_model_2 <- get_simulated_retry(
+  fit$output_files(), 
+  MIN_TEST_USER_ID, 
+  MIN_TEST_LEVEL_ID
+)
+```
+
+```{r}
+
+model_2_play_vector <- test_users_simulated_try_model_2 %>%
+  merge(dsws::odds_table) %>% 
+  group_by(user_id, level_id) %>%
+  summarise(p=sum(value < line)/n(), odd=median(odd)) %>%
+  mutate(suggested_odd=(1 - p) / p + 1) %>% 
+  mutate(play=odd>suggested_odd) %>% 
+  pull(play)
+
+dsws::score_the_play_vector(model_2_play_vector, scores = dsws::scores, odds_table = dsws::odds_table)
+
+```
+## 5. Real difficulty 
+
+In section 3 we try to check if the game becomes harder or not by checking the retry counts per levels. Yet we could not see that it is the case. The blue line that shows the trend has very low derivative. Now we have difficulties as model results. Lets check it is still in the case or not?
+```{r,   results='hide'}
+levels <- vroom(fit$output_files(), comment = '#', delim = ',') %>%
+  select(starts_with('l.'))  %>%
+  tidyr::pivot_longer(everything()) %>%
+  tidyr::separate(name, c("_", "level_id"), sep = "\\.") %>%
+  mutate(level_id = as.numeric(level_id) + 100) %>% 
+  group_by(level_id)%>%
+  summarise(m=mean(value))
+
+ggplot(data=levels, aes(x=level_id, y= m)) + 
+  geom_line() +
+  geom_smooth(span = 0.1)+
+  geom_smooth(method = lm, se = FALSE)
+
+```
+
+There is now a new clear trend, do you have any idea why?
+

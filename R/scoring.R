@@ -28,18 +28,18 @@
 #' @importFrom gridExtra grid.arrange
 score_the_play_vector <- function(play_vector,scores,odds_table){
   
-  scores <- merge(scores,odds_table) %>% 
-    dplyr::mutate(play=play_vector) %>% 
-    dplyr::mutate(index=row_number()) %>%
-    dplyr::mutate(profit_loss=play*(odd - 1)*(retrial_count<line) + play * (retrial_count>line) * -1) %>%
+  scores <- merge(scores,odds_table) |>
+    dplyr::mutate(play=play_vector) |>
+    dplyr::mutate(index=dplyr::row_number()) |>
+    dplyr::mutate(profit_loss=play*(odd - 1)*(retrial_count<line) + play * (retrial_count>line) * -1) |>
     dplyr::mutate(profit=cumsum(profit_loss * 10))
   
   p1 <- ggplot2::ggplot(scores, ggplot2::aes(x=index, y=profit)) +
     ggplot2::geom_line()
   
-  play_or_not <- scores %>% dplyr::mutate(play_factor = as.factor(play)) %>% 
-    dplyr::group_by(play_factor) %>% 
-    dplyr::tally() %>% 
+  play_or_not <- scores |> dplyr::mutate(play_factor = as.factor(play)) |> 
+    dplyr::group_by(play_factor) |>
+    dplyr::tally() |> 
     dplyr::mutate(perc = floor(n / 25), labels=perc)
   
   p2 <- ggplot2::ggplot(play_or_not, ggplot2::aes(x = "", y = perc, fill = play_factor)) +

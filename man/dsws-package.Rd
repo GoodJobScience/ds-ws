@@ -4,9 +4,9 @@
 \name{dsws-package}
 \alias{dsws}
 \alias{dsws-package}
-\title{dsws: What the Package Does (One Line, Title Case)}
+\title{dsws: Bayesian Inference Workshop}
 \description{
-What the package does (one paragraph).
+This package contains materials needed for a data science workshop organized by good job games. Check science.goodjobgames.com for futher information.
 }
 \author{
 \strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
