@@ -1,0 +1,597 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={GJG Workshop - Retry Count Estimation},
+  pdfauthor={Berke Kizir, Orcun Gumus},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{GJG Workshop - Retry Count Estimation}
+\author{Berke Kizir, Orcun Gumus}
+\date{November 9, 2022}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introduction}{%
+\subsection{1. Introduction}\label{introduction}}
+
+Zen Match is our causal game introduced at 2021. Each day nearly 2
+million user plays the game generate TBs of data. Today we prepared a
+small dataset from the data and we prepared a challenge to solve.
+
+As we discussed in our blog difficulty effects the gaming experience. In
+short, skilled players prefer the game harder while new comers in the
+genre would rather have easier experience, see
+\url{https://science.goodjobgmaes.com} for more.
+
+\begin{figure}
+\centering
+\includegraphics{https://gjg-data-science-public.s3.amazonaws.com/ds-ws/skills-difficulty.gif}
+\caption{Figure 1: The skills of the segments - we assume constant
+across the levels, which is apparently not in the case in real
+historical data -, and the skill difficulty difference of the different
+segments. That shows newbies enters the frustration much faster than
+average players, while skilled players are always in boredom area.}
+\end{figure}
+
+The aim of this workshop to understand the players abilities, skills,
+using the real historical data. We will try to estimate how many retry
+the players will be in need to pass the levels before they reach that
+specific level.
+
+At the end of the workshop we prepare a betting game. The betting sheet
+contains pid(players id), lid(level), ou(over/under), (retry)retry
+quoted value, odd. The question is would you prefer to play the bet or
+not. At the end we will compare the profit and loss of our findings
+compared to betting randomly.
+
+\hypertarget{libraries-that-we-need}{%
+\subsection{2. Libraries that we need}\label{libraries-that-we-need}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dsws)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#install.packages("vroom")}
+\CommentTok{\#install.packages("foreach")}
+\CommentTok{\#install.packages("tidyverse")}
+
+\FunctionTok{library}\NormalTok{(}\StringTok{"vroom"}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(}\StringTok{"tidyverse"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Registered S3 methods overwritten by 'readr':
+##   method                    from 
+##   as.data.frame.spec_tbl_df vroom
+##   as_tibble.spec_tbl_df     vroom
+##   format.col_spec           vroom
+##   print.col_spec            vroom
+##   print.collector           vroom
+##   print.date_names          vroom
+##   print.locale              vroom
+##   str.col_spec              vroom
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching packages --------------------------------------- tidyverse 1.3.2 --
+## v ggplot2 3.3.6     v purrr   0.3.4
+## v tibble  3.1.7     v dplyr   1.0.9
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x readr::col_character()   masks vroom::col_character()
+## x readr::col_date()        masks vroom::col_date()
+## x readr::col_datetime()    masks vroom::col_datetime()
+## x readr::col_double()      masks vroom::col_double()
+## x readr::col_factor()      masks vroom::col_factor()
+## x readr::col_guess()       masks vroom::col_guess()
+## x readr::col_integer()     masks vroom::col_integer()
+## x readr::col_logical()     masks vroom::col_logical()
+## x readr::col_number()      masks vroom::col_number()
+## x readr::col_skip()        masks vroom::col_skip()
+## x readr::col_time()        masks vroom::col_time()
+## x readr::cols()            masks vroom::cols()
+## x readr::date_names_lang() masks vroom::date_names_lang()
+## x readr::default_locale()  masks vroom::default_locale()
+## x dplyr::filter()          masks stats::filter()
+## x readr::fwf_cols()        masks vroom::fwf_cols()
+## x readr::fwf_empty()       masks vroom::fwf_empty()
+## x readr::fwf_positions()   masks vroom::fwf_positions()
+## x readr::fwf_widths()      masks vroom::fwf_widths()
+## x dplyr::lag()             masks stats::lag()
+## x readr::locale()          masks vroom::locale()
+## x readr::output_column()   masks vroom::output_column()
+## x readr::problems()        masks vroom::problems()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"foreach"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'foreach'
+## 
+## The following objects are masked from 'package:purrr':
+## 
+##     accumulate, when
+\end{verbatim}
+
+The tidyverse is an opinionated collection of R packages designed for
+data science, We will use dplyr and ggplot packages. For foreach
+functionality we need foreach package,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#install.packages("cmdstanr", repos = c("https://mc{-}stan.org/r{-}packages/", getOption("repos")))}
+\CommentTok{\#install\_cmdstan(dir = "\textasciitilde{}/.cmdstan/cmdstan{-}2.30.1", cores = getOption("mc.cores", 6), overwrite = TRUE, version = "2.30.1", quiet = TRUE)}
+
+\FunctionTok{library}\NormalTok{(cmdstanr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## This is cmdstanr version 0.5.3
+\end{verbatim}
+
+\begin{verbatim}
+## - CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+\end{verbatim}
+
+\begin{verbatim}
+## - CmdStan path: /Users/guemues/.cmdstanr/cmdstan-2.29.2
+\end{verbatim}
+
+\begin{verbatim}
+## - CmdStan version: 2.29.2
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+## To disable this check set option or environment variable CMDSTANR_NO_VER_CHECK=TRUE.
+\end{verbatim}
+
+We need cmdstanr and cmdstan in order to do bayesian inference,
+
+\hypertarget{data-setup}{%
+\subsection{3. Data setup}\label{data-setup}}
+
+In the dataset we have level id, which also sorted and shows progress.
+Retry count and superundo and shuffle usage in the level. Superundo and
+shuffle help the players and increase the probabilirty of passing the
+level.
+
+\hypertarget{betting-randomly}{%
+\subsubsection{3.1 Betting randomly}\label{betting-randomly}}
+
+Lets see what playing randomly resulted
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{4}\NormalTok{)}
+\NormalTok{random\_play\_vector }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{replace=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{size=}\FunctionTok{nrow}\NormalTok{(odds\_table))}
+\NormalTok{dsws}\SpecialCharTok{::}\FunctionTok{score\_the\_play\_vector}\NormalTok{(random\_play\_vector, }\AttributeTok{scores =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{scores, }\AttributeTok{odds\_table =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{odds\_table)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{verbatim}
+## TableGrob (1 x 2) "arrange": 2 grobs
+##   z     cells    name           grob
+## 1 1 (1-1,1-1) arrange gtable[layout]
+## 2 2 (1-1,2-2) arrange gtable[layout]
+\end{verbatim}
+
+\hypertarget{short-eda-on-train-test-data}{%
+\subsubsection{3.2 Short EDA on train test
+data}\label{short-eda-on-train-test-data}}
+
+There is 150 users in the dataset and 100 levels ranging from 100 to
+200. 50 users and 50 levels used in testing. For users 100 to 150 we do
+not have the retry information from 150 to 200.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(train\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{retrial\_count=} \FunctionTok{pmin}\NormalTok{(retrial\_count, }\DecValTok{10}\NormalTok{)), }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{level\_id, }\AttributeTok{y=}\NormalTok{ user\_id, }\AttributeTok{fill=}\NormalTok{retrial\_count)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_tile}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+Here we see that blue dots are getting more dense while levels are
+increasing, and some players are passign the levels without retrying.
+
+Lets check our assumptions with aggregated data, is the game getting
+harder with new levels:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{retry\_counts\_per\_level }\OtherTok{\textless{}{-}}\NormalTok{ train\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{group\_by}\NormalTok{(level\_id) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{summarise}\NormalTok{(}\AttributeTok{retrial\_count=}\FunctionTok{sum}\NormalTok{(retrial\_count))}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{retry\_counts\_per\_level, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{level\_id, }\AttributeTok{y=}\NormalTok{ retrial\_count)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{span =} \FloatTok{0.2}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =}\NormalTok{ lm, }\AttributeTok{se =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+\end{verbatim}
+
+\begin{verbatim}
+## `geom_smooth()` using formula 'y ~ x'
+\end{verbatim}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\hypertarget{modelling-the-data}{%
+\subsection{4. Modelling the data}\label{modelling-the-data}}
+
+\hypertarget{modelling-only-with-level-and-user}{%
+\subsubsection{4.1 Modelling only with level and
+user}\label{modelling-only-with-level-and-user}}
+
+Our assumption is to retry count in level i by user j, \(t_{ij}\) is
+distributed with a geometric distribution
+\[  t_{ij} \sim Geometric (p_{ij}) \] where p is the probability of the
+successful passing in one retry of level j by user i. If we manage to
+estimate \(p_{ij}\) we can estimate how many retries will be required by
+the user i for level j to pass.
+
+To start with the simplest case let's assume \(p_{ij}\) dependent only
+on the level and the user. In other words, each player has different
+equal distribution on the level j.
+
+\[  p_{ij} = inv\_logit(intercept + u_i + l_j) \]
+
+\[  u_i \sim normal (0, alpha_u) \] \[  l_j \sim normal (0, alpha_l) \]
+\[  alpha_u \sim exponential (1) \] \[  alpha_l \sim exponential (1) \]
+
+\(alpha_u\) and \(alpha_l\) are hyper priors for multi level model. We
+only observe \(t_{ij}\)while other parameters have latent effects. Check
+\url{https://nicholasrjenkins.science/tutorials/bayesian-inference-with-stan/mm_stan/}
+for more on stan and multi level modelling.
+
+Lets first define the constant across trainings and simulations. You can
+change chains and iter sampling acording to you computer performance.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ITER\_SAMPLING }\OtherTok{=} \DecValTok{150}
+\NormalTok{CHAINS }\OtherTok{=} \DecValTok{4}
+\NormalTok{MIN\_TEST\_USER\_ID }\OtherTok{=} \FunctionTok{min}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{user\_id)}
+\NormalTok{MIN\_TEST\_LEVEL\_ID }\OtherTok{=} \FunctionTok{min}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{level\_id)}
+\NormalTok{SAMPLE\_COUNT }\OtherTok{=}\NormalTok{ ITER\_SAMPLING }\SpecialCharTok{*}\NormalTok{ CHAINS}
+\NormalTok{FIRST\_LEVEL }\OtherTok{=} \FunctionTok{min}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{level\_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_1 }\OtherTok{\textless{}{-}} \FunctionTok{cmdstan\_model}\NormalTok{(}\StringTok{\textquotesingle{}./geometric\_model\_00.stan\textquotesingle{}}\NormalTok{)}
+
+\NormalTok{input\_list }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{N =} \FunctionTok{nrow}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{train\_data),}
+  \AttributeTok{user\_id =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{user\_id,}
+  \AttributeTok{N\_of\_user\_id =} \FunctionTok{max}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{user\_id),}
+  
+  \AttributeTok{level\_id =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{level\_id }\SpecialCharTok{{-}}\NormalTok{ FIRST\_LEVEL }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{N\_of\_level\_id =} \FunctionTok{max}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{level\_id) }\SpecialCharTok{{-}}\NormalTok{ FIRST\_LEVEL }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
+  
+  \AttributeTok{retrial\_count =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{retrial\_count,}
+  
+  \AttributeTok{N\_of\_test\_user =} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{user\_id)),}
+  \AttributeTok{N\_of\_test\_level =} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{level\_id))}
+\NormalTok{)}
+
+\NormalTok{fit }\OtherTok{\textless{}{-}}\NormalTok{ model\_1}\SpecialCharTok{$}\FunctionTok{sample}\NormalTok{(}
+  \AttributeTok{data =}\NormalTok{ input\_list,}
+  \AttributeTok{iter\_warmup =}\NormalTok{ ITER\_SAMPLING,}
+  \AttributeTok{iter\_sampling =}\NormalTok{ ITER\_SAMPLING,}
+  \AttributeTok{chains =}\NormalTok{ CHAINS,}
+  \AttributeTok{parallel\_chains =}\NormalTok{ CHAINS,}
+  \AttributeTok{show\_messages=}\ConstantTok{FALSE}
+\NormalTok{)}
+
+\NormalTok{test\_users\_simulated\_try\_model\_1 }\OtherTok{\textless{}{-}} \FunctionTok{get\_simulated\_retry}\NormalTok{(}
+\NormalTok{  fit}\SpecialCharTok{$}\FunctionTok{output\_files}\NormalTok{(), }
+\NormalTok{  MIN\_TEST\_USER\_ID, }
+\NormalTok{  MIN\_TEST\_LEVEL\_ID}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 600 Columns: 2759
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## dbl (2759): lp__, accept_stat__, stepsize__, treedepth__, n_leapfrog__, dive...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+Lets check the first odd in the table, the odd is 2.46. Lets check is it
+logical to play this odd or if not.
+
+\begin{verbatim}
+## `summarise()` has grouped output by 'user_id'. You can override using the
+## `.groups` argument.
+\end{verbatim}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\begin{verbatim}
+## TableGrob (1 x 2) "arrange": 2 grobs
+##   z     cells    name           grob
+## 1 1 (1-1,1-1) arrange gtable[layout]
+## 2 2 (1-1,2-2) arrange gtable[layout]
+\end{verbatim}
+
+\hypertarget{modelling-with-superundo-and-shuffle}{%
+\subsubsection{4.2 Modelling with superundo and
+shuffle}\label{modelling-with-superundo-and-shuffle}}
+
+New assumption is to retry count in level i by user j, \(t_{ij}\) is
+distributed with a geometric distribution
+\[  t_{ij} \sim Geometric (p_{ij}) \] where p is the probability of the
+successful passing in one retry of level j by user i with shuffle usage
+\(shuffle_{ij}\) and superundo usage \(superundo_{ij}\). If we manage to
+estimate \(p_{ij}\) we can estimate how many retries will be required by
+the user i for level j to pass.
+
+Let's assume \(p_{ij}\) dependent on the level and the user and the
+perks used during the level. In other words, not only the levels but the
+perks like superundo and shuffle are effective on \(p_{ij}\).
+
+\[  p_{ij} = inv\_logit(intercept + u_i + l_j + b_{superundo} * superundo_{ij}+ b_{shuffle} *shuffle_{ij}) \]
+
+\[  u_i \sim normal (0, alpha_u) \] \[  l_j \sim normal (0, alpha_l) \]
+\[  alpha_u \sim exponential (1) \] \[  alpha_l \sim exponential (1) \]
+\[  b_{superundo} \sim normal (0, 1) \]
+\[  b_{shuffle} \sim normal (0, 1) \]
+
+\(alpha_u\) and \(alpha_l\) are hyper priors for multi level model. We
+only observe \(t_{ij}\)while other parameters have latent effects. Check
+\url{https://nicholasrjenkins.science/tutorials/bayesian-inference-with-stan/mm_stan/}
+for more on stan and multi level modelling.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_2 }\OtherTok{\textless{}{-}} \FunctionTok{cmdstan\_model}\NormalTok{(}\StringTok{\textquotesingle{}geometric\_model\_01.stan\textquotesingle{}}\NormalTok{)}
+
+
+\NormalTok{input\_list }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{N =} \FunctionTok{nrow}\NormalTok{(train\_data),}
+  \AttributeTok{user\_id =}\NormalTok{ train\_data}\SpecialCharTok{$}\NormalTok{user\_id,}
+  \AttributeTok{N\_of\_user\_id =} \FunctionTok{max}\NormalTok{(train\_data}\SpecialCharTok{$}\NormalTok{user\_id),}
+  
+  \AttributeTok{level\_id =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{level\_id }\SpecialCharTok{{-}}\NormalTok{ FIRST\_LEVEL }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{N\_of\_level\_id =} \FunctionTok{max}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{train\_data}\SpecialCharTok{$}\NormalTok{level\_id) }\SpecialCharTok{{-}}\NormalTok{ FIRST\_LEVEL }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
+  
+  \AttributeTok{retrial\_count =}\NormalTok{ train\_data}\SpecialCharTok{$}\NormalTok{retrial\_count,}
+  
+  \AttributeTok{N\_of\_test\_user =} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(test\_data}\SpecialCharTok{$}\NormalTok{user\_id)),}
+  \AttributeTok{N\_of\_test\_level =} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(test\_data}\SpecialCharTok{$}\NormalTok{level\_id)),}
+  \AttributeTok{superundo =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{superundo,}
+  \AttributeTok{shuffle =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{shuffle}
+\NormalTok{)}
+
+\NormalTok{fit }\OtherTok{\textless{}{-}}\NormalTok{ model\_2}\SpecialCharTok{$}\FunctionTok{sample}\NormalTok{(}
+  \AttributeTok{data =}\NormalTok{ input\_list,}
+  \AttributeTok{iter\_warmup =}\NormalTok{ ITER\_SAMPLING,}
+  \AttributeTok{iter\_sampling =}\NormalTok{ ITER\_SAMPLING,}
+  \AttributeTok{chains =}\NormalTok{ CHAINS,}
+  \AttributeTok{parallel\_chains =}\NormalTok{ CHAINS,}
+  \AttributeTok{show\_messages=}\ConstantTok{FALSE}
+\NormalTok{)}
+
+\NormalTok{test\_users\_simulated\_try\_model\_2 }\OtherTok{\textless{}{-}}\NormalTok{ dsws}\SpecialCharTok{::}\FunctionTok{get\_simulated\_retry}\NormalTok{(}
+\NormalTok{  fit}\SpecialCharTok{$}\FunctionTok{output\_files}\NormalTok{(), }
+\NormalTok{  MIN\_TEST\_USER\_ID, }
+\NormalTok{  MIN\_TEST\_LEVEL\_ID}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 600 Columns: 2761
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## dbl (2761): lp__, accept_stat__, stepsize__, treedepth__, n_leapfrog__, dive...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_2\_play\_vector }\OtherTok{\textless{}{-}}\NormalTok{ test\_users\_simulated\_try\_model\_2 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{merge}\NormalTok{(dsws}\SpecialCharTok{::}\NormalTok{odds\_table) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(user\_id, level\_id) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{p=}\FunctionTok{sum}\NormalTok{(value }\SpecialCharTok{\textless{}}\NormalTok{ line)}\SpecialCharTok{/}\FunctionTok{n}\NormalTok{(), }\AttributeTok{odd=}\FunctionTok{median}\NormalTok{(odd)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{suggested\_odd=}\NormalTok{(}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ p) }\SpecialCharTok{/}\NormalTok{ p }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{play=}\NormalTok{odd}\SpecialCharTok{\textgreater{}}\NormalTok{suggested\_odd) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{pull}\NormalTok{(play)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `summarise()` has grouped output by 'user_id'. You can override using the
+## `.groups` argument.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dsws}\SpecialCharTok{::}\FunctionTok{score\_the\_play\_vector}\NormalTok{(model\_2\_play\_vector, }\AttributeTok{scores =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{scores, }\AttributeTok{odds\_table =}\NormalTok{ dsws}\SpecialCharTok{::}\NormalTok{odds\_table)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-12-1.pdf}
+
+\begin{verbatim}
+## TableGrob (1 x 2) "arrange": 2 grobs
+##   z     cells    name           grob
+## 1 1 (1-1,1-1) arrange gtable[layout]
+## 2 2 (1-1,2-2) arrange gtable[layout]
+\end{verbatim}
+
+\hypertarget{real-difficulty}{%
+\subsection{5. Real difficulty}\label{real-difficulty}}
+
+In section 3 we try to check if the game becomes harder or not by
+checking the retry counts per levels. Yet we could not see that it is
+the case. The blue line that shows the trend has very low derivative.
+Now we have difficulties as model results. Lets check it is still in the
+case or not?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{levels }\OtherTok{\textless{}{-}} \FunctionTok{vroom}\NormalTok{(fit}\SpecialCharTok{$}\FunctionTok{output\_files}\NormalTok{(), }\AttributeTok{comment =} \StringTok{\textquotesingle{}\#\textquotesingle{}}\NormalTok{, }\AttributeTok{delim =} \StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\FunctionTok{starts\_with}\NormalTok{(}\StringTok{\textquotesingle{}l.\textquotesingle{}}\NormalTok{))  }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tidyr}\SpecialCharTok{::}\FunctionTok{pivot\_longer}\NormalTok{(}\FunctionTok{everything}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  tidyr}\SpecialCharTok{::}\FunctionTok{separate}\NormalTok{(name, }\FunctionTok{c}\NormalTok{(}\StringTok{"\_"}\NormalTok{, }\StringTok{"level\_id"}\NormalTok{), }\AttributeTok{sep =} \StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{."}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{level\_id =} \FunctionTok{as.numeric}\NormalTok{(level\_id) }\SpecialCharTok{+} \DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(level\_id)}\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{m=}\FunctionTok{mean}\NormalTok{(value))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 600 Columns: 2761
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## dbl (2761): lp__, accept_stat__, stepsize__, treedepth__, n_leapfrog__, dive...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{levels, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{level\_id, }\AttributeTok{y=}\NormalTok{ m)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{span =} \FloatTok{0.1}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =}\NormalTok{ lm, }\AttributeTok{se =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+## `geom_smooth()` using formula 'y ~ x'
+\end{verbatim}
+
+\includegraphics{workshop_notebook_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+There is now a new clear trend, do you have any idea why?
+
+\end{document}

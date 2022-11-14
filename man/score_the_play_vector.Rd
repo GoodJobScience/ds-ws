@@ -2,31 +2,30 @@
 % Please edit documentation in R/scoring.R
 \name{score_the_play_vector}
 \alias{score_the_play_vector}
-\title{FUNCTION_TITLE}
+\title{Score the Betting}
 \usage{
 score_the_play_vector(play_vector, scores, odds_table)
 }
 \arguments{
-\item{play_vector}{PARAM_DESCRIPTION}
+\item{play_vector}{A numerical vector contains ones and zeros}
 
-\item{scores}{PARAM_DESCRIPTION}
+\item{scores}{A dataframe contains user id level id and retrial_count}
 
-\item{odds_table}{PARAM_DESCRIPTION}
-}
-\value{
-OUTPUT_DESCRIPTION
+\item{odds_table}{A dataframe contains user_id level_id line OU and odd}
 }
 \description{
-FUNCTION_DESCRIPTION
+This function is designed to test the play vector against the given odds.
 }
 \details{
-DETAILS
+The function will plot the results
 }
 \examples{
 \dontrun{
-if(interactive()){
- #EXAMPLE1
- }
+dsws::score_the_play_vector(
+ model_1_play_vector, 
+ scores = dsws::scores,
+ odds_table = dsws::odds_table
+ )
 }
 }
 \seealso{

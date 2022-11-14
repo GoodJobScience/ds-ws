@@ -2,31 +2,33 @@
 % Please edit documentation in R/utils.R
 \name{get_simulated_retry}
 \alias{get_simulated_retry}
-\title{FUNCTION_TITLE}
+\title{Get Simulated Retry}
 \usage{
 get_simulated_retry(outputfiles, min_test_user_id, min_level_id)
 }
 \arguments{
-\item{outputfiles}{PARAM_DESCRIPTION}
+\item{outputfiles}{Stan output files}
 
-\item{min_test_user_id}{PARAM_DESCRIPTION}
+\item{min_test_user_id}{Minimum user id given in the stan model}
 
-\item{min_level_id}{PARAM_DESCRIPTION}
+\item{min_level_id}{Minimum level id given in the stan model}
 }
 \value{
-OUTPUT_DESCRIPTION
+return a dataframe level_id; user_id; simulated value
 }
 \description{
-FUNCTION_DESCRIPTION
+The function designed to read stan results and return the simulated retry counts
 }
 \details{
-DETAILS
+The function requires to be used with provided stanfiles
 }
 \examples{
 \dontrun{
-if(interactive()){
- #EXAMPLE1
- }
+test_users_simulated_try_model_1 <- get_simulated_retry(
+ fit$output_files(), 
+ MIN_TEST_USER_ID,
+ MIN_TEST_LEVEL_ID
+ )
 }
 }
 \seealso{

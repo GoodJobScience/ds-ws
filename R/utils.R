@@ -1,17 +1,19 @@
 
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param outputfiles PARAM_DESCRIPTION
-#' @param min_test_user_id PARAM_DESCRIPTION
-#' @param min_level_id PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Get Simulated Retry
+#' @description The function designed to read stan results and return the simulated retry counts
+#' @param outputfiles Stan output files
+#' @param min_test_user_id Minimum user id given in the stan model
+#' @param min_level_id Minimum level id given in the stan model
+#' @return return a dataframe level_id; user_id; simulated value
+#' @details The function requires to be used with provided stanfiles
 #' @examples 
 #' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
+#' test_users_simulated_try_model_1 <- get_simulated_retry(
+#'  fit$output_files(), 
+#'  MIN_TEST_USER_ID,
+#'  MIN_TEST_LEVEL_ID
+#'  )
 #' }
 #' @seealso 
 #'  \code{\link[vroom]{vroom}}

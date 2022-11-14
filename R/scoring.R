@@ -4,18 +4,20 @@
 #library(png)   
 #library(gridExtra)
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param play_vector PARAM_DESCRIPTION
-#' @param scores PARAM_DESCRIPTION
-#' @param odds_table PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Score the Betting
+#' @description This function is designed to test the play vector against the given odds.
+#' @param play_vector A numerical vector contains ones and zeros
+#' @param scores A dataframe contains user id level id and retrial_count
+#' @param odds_table A dataframe contains user_id level_id line OU and odd
+#' @return NULL
+#' @details The function will plot the results
 #' @examples 
 #' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
+#' dsws::score_the_play_vector(
+#'  model_1_play_vector, 
+#'  scores = dsws::scores,
+#'  odds_table = dsws::odds_table
+#'  )
 #' }
 #' @seealso 
 #'  \code{\link[dplyr]{mutate}}, \code{\link[dplyr]{group_by}}, \code{\link[dplyr]{count}}
