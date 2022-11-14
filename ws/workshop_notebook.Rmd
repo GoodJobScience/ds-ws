@@ -3,20 +3,20 @@ title: "GJG Workshop - Retry Count Estimation"
 author: "Berke Kizir, Orcun Gumus"
 date: "November 9, 2022"
 output:
+  pdf_document: default
+  html_notebook: default
   html_document:
     df_print: paged
-  html_notebook: default
-  pdf_document: default
 ---
-
-
-## Team
-
 
 
 
 ## 1. Introduction
 
+```{r}
+# install.packages("devtools")
+devtools::install_github("GoodJobTech/ds-ws")
+```
 
 
 Zen Match is our causal game introduced at 2021. Each day nearly 2 million user plays the game generate TBs of data. Today we prepared a small dataset from the data and we prepared a challenge to solve.
